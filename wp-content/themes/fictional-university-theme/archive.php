@@ -1,32 +1,27 @@
+<!--            
+                // Code to conditionally display different categories
+                
+                <?php if (is_category()) {
+                    echo single_cat_title();
+                }
+
+                if (is_author()) {
+                    echo 'All posts by ';
+                    the_author();
+                } ?> 
+                    
+-->
+
 <?php
 
-get_header(); ?>
+get_header(); 
 
-<div class="page-banner">
-    <div class="page-banner__bg-image" style="background-image: url(<?php echo get_theme_file_uri('/images/library-hero.jpg') ?>)"></div>
-    <div class="page-banner__content container t-center c-white">
-        <h1 class="headline headline--large">
-
-
-
-            <!-- <?php if (is_category()) {
-                        echo single_cat_title();
-                    }
-
-                    if (is_author()) {
-                        echo 'All posts by ';
-                        the_author();
-                    } ?> -->
-
-
-
-            <?php the_archive_title(); ?>
-        </h1>
-        <h2 class="headline headline--medium"><?php the_archive_description(); ?></h2>
-        <!-- <h3 class="headline headline--small">Why don&rsquo;t you check out the <strong>major</strong> you&rsquo;re interested in?</h3>
-        <a href="#" class="btn btn--large btn--blue">Find Your Major</a> -->
-    </div>
-</div>
+pageBanner(array(
+    'title' => get_the_archive_title(),
+    'subtitle' => get_the_archive_description(),
+    'photo' => get_theme_file_uri('/images/library-hero.jpg')
+));
+?>
 
 <div class="container container--narrow page-section">
     <?php
