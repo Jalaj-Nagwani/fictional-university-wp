@@ -12,15 +12,101 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _css_style_scss__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../css/style.scss */ "./css/style.scss");
 /* harmony import */ var _modules_MobileMenu__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/MobileMenu */ "./src/modules/MobileMenu.js");
 /* harmony import */ var _modules_HeroSlider__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/HeroSlider */ "./src/modules/HeroSlider.js");
+/* harmony import */ var _modules_GoogleMap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/GoogleMap */ "./src/modules/GoogleMap.js");
+/* harmony import */ var _modules_Search__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/Search */ "./src/modules/Search.js");
 
 
 // Our modules / classes
 
 
 
+
+
 // Instantiate a new object using our modules/classes
 const mobileMenu = new _modules_MobileMenu__WEBPACK_IMPORTED_MODULE_1__["default"]();
 const heroSlider = new _modules_HeroSlider__WEBPACK_IMPORTED_MODULE_2__["default"]();
+const GoogleMap = new _modules_GoogleMap__WEBPACK_IMPORTED_MODULE_3__["default"]();
+const search = new _modules_Search__WEBPACK_IMPORTED_MODULE_4__["default"]();
+
+/***/ }),
+
+/***/ "./src/modules/GoogleMap.js":
+/*!**********************************!*\
+  !*** ./src/modules/GoogleMap.js ***!
+  \**********************************/
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+class GMap {
+  constructor() {
+    document.querySelectorAll(".acf-map").forEach(el => {
+      this.new_map(el);
+    });
+  }
+  new_map($el) {
+    var $markers = $el.querySelectorAll(".marker");
+    var args = {
+      zoom: 16,
+      center: new google.maps.LatLng(0, 0),
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    var map = new google.maps.Map($el, args);
+    map.markers = [];
+    var that = this;
+
+    // add markers
+    $markers.forEach(function (x) {
+      that.add_marker(x, map);
+    });
+
+    // center map
+    this.center_map(map);
+  } // end new_map
+
+  add_marker($marker, map) {
+    var latlng = new google.maps.LatLng($marker.getAttribute("data-lat"), $marker.getAttribute("data-lng"));
+    var marker = new google.maps.Marker({
+      position: latlng,
+      map: map
+    });
+    map.markers.push(marker);
+
+    // if marker contains HTML, add it to an infoWindow
+    if ($marker.innerHTML) {
+      // create info window
+      var infowindow = new google.maps.InfoWindow({
+        content: $marker.innerHTML
+      });
+
+      // show info window when marker is clicked
+      google.maps.event.addListener(marker, "click", function () {
+        infowindow.open(map, marker);
+      });
+    }
+  } // end add_marker
+
+  center_map(map) {
+    var bounds = new google.maps.LatLngBounds();
+
+    // loop through all markers and create bounds
+    map.markers.forEach(function (marker) {
+      var latlng = new google.maps.LatLng(marker.position.lat(), marker.position.lng());
+      bounds.extend(latlng);
+    });
+
+    // only 1 marker?
+    if (map.markers.length == 1) {
+      // set center of map
+      map.setCenter(bounds.getCenter());
+      map.setZoom(16);
+    } else {
+      // fit to bounds
+      map.fitBounds(bounds);
+    }
+  } // end center_map
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (GMap);
 
 /***/ }),
 
@@ -88,6 +174,114 @@ class MobileMenu {
 
 /***/ }),
 
+/***/ "./src/modules/Search.js":
+/*!*******************************!*\
+  !*** ./src/modules/Search.js ***!
+  \*******************************/
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "jquery");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+
+class Search {
+  // 1. Desccribe and create/initiate our object
+  constructor() {
+    this.addSearchHtml();
+    this.openButton = jquery__WEBPACK_IMPORTED_MODULE_0___default()(".js-search-trigger");
+    this.closeButton = jquery__WEBPACK_IMPORTED_MODULE_0___default()(".search-overlay__close");
+    this.searchField = jquery__WEBPACK_IMPORTED_MODULE_0___default()("#search-term");
+    this.searchOverlay = jquery__WEBPACK_IMPORTED_MODULE_0___default()(".search-overlay");
+    this.isOverlayOpen = false;
+    this.isSpinnerVisible = false;
+    this.previousValue; // For tracking the change in the search value
+    this.typingTimer;
+    this.events();
+  }
+
+  // 2. events
+
+  events() {
+    this.resultsDiv = jquery__WEBPACK_IMPORTED_MODULE_0___default()("#search-overlay__results");
+    this.openButton.on("click", this.openOverlay.bind(this));
+    this.closeButton.on("click", this.closeOverlay.bind(this));
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()(document).on("keydown", this.keyPressDispatcher.bind(this));
+    this.searchField.on("keyup", this.typingLogic.bind(this));
+  }
+
+  // 3. methods (functions, action...)
+
+  typingLogic() {
+    if (this.searchField.val() != this.previousValue) {
+      clearTimeout(this.typingTimer);
+      if (!this.searchField.val()) {
+        this.resultsDiv.html('');
+        this.isSpinnerVisible = false;
+      } else {
+        if (!this.isSpinnerVisible) {
+          this.resultsDiv.html('<div class="spinner-loader"></div>'); // Loading Icon is placed before the setTimeout function
+          this.isSpinnerVisible = true;
+        }
+        this.typingTimer = setTimeout(this.getResults.bind(this), 750);
+        this.previousValue = this.searchField.val();
+      }
+    }
+  }
+  getResults() {
+    var a = jquery__WEBPACK_IMPORTED_MODULE_0___default().getJSON(universityData.root_url + '/wp-json/wp/v2/posts?search=' + this.searchField.val());
+    var b = jquery__WEBPACK_IMPORTED_MODULE_0___default().getJSON(universityData.root_url + '/wp-json/wp/v2/pages?search=' + this.searchField.val());
+    jquery__WEBPACK_IMPORTED_MODULE_0___default().when(a, b).then((posts, pages) => {
+      var combinedResults = posts[0].concat(pages[0]);
+      this.resultsDiv.html(`
+            <h2 class="search-overlay__section-title">General Information</h2>
+            ${combinedResults.length ? '<ul class="link-list min-list">' : '<p>No Results</p>'}
+                ${combinedResults.map(item => `<li><a href="${item.link}">${item.title.rendered}</a> ${item.type == 'post' ? `by ${item.author_name}` : ''}</li>`).join('')}
+            ${combinedResults.length ? '</ul>' : ''}
+            `);
+      this.isSpinnerVisible = false;
+    }, () => {
+      this.resultsDiv.html("<p>Unexpected Error. Please try after some time. </p>");
+    });
+  }
+  keyPressDispatcher(e) {
+    if (e.keyCode == 83 && !this.isOverlayOpen && !jquery__WEBPACK_IMPORTED_MODULE_0___default()("input, textarea").is(':focus')) {
+      this.openOverlay();
+    } else if (e.keyCode == 27 && this.isOverlayOpen) {
+      this.closeOverlay();
+    }
+  }
+  openOverlay() {
+    this.searchOverlay.addClass("search-overlay--active");
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()("body").addClass("body-no-scroll");
+    this.searchField.val('');
+    this.resultsDiv.html('');
+    setTimeout(() => this.searchField.focus(), 301);
+    this.isOverlayOpen = true;
+    console.log("Open");
+  }
+  closeOverlay() {
+    this.searchOverlay.removeClass("search-overlay--active");
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()("body").removeClass("body-no-scroll");
+    this.isOverlayOpen = false;
+  }
+  addSearchHtml() {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()("body").append(`<div class="search-overlay">
+        <div class="search-overlay__top">
+            <div class="container">
+                <i class="fa fa-search search-overlay__icon" aria-hidden="true"></i>
+                <input type="text" class="search-term" placeholder="What are you looking for?" id="search-term" autocomplete="off">
+                <i class="fa fa-window-close search-overlay__close" aria-hidden="true"></i>
+            </div>
+        </div>
+    
+        <div id="search-overlay__results"></div>
+    </div>`);
+  }
+}
+/* harmony default export */ __webpack_exports__["default"] = (Search);
+
+/***/ }),
+
 /***/ "./css/style.scss":
 /*!************************!*\
   !*** ./css/style.scss ***!
@@ -97,6 +291,16 @@ class MobileMenu {
 __webpack_require__.r(__webpack_exports__);
 // extracted by mini-css-extract-plugin
 
+
+/***/ }),
+
+/***/ "jquery":
+/*!*************************!*\
+  !*** external "jQuery" ***!
+  \*************************/
+/***/ (function(module) {
+
+module.exports = window["jQuery"];
 
 /***/ }),
 
@@ -4051,6 +4255,18 @@ var Glide = /*#__PURE__*/function (_Core) {
 /******/ 				}
 /******/ 			}
 /******/ 			return result;
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	!function() {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = function(module) {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				function() { return module['default']; } :
+/******/ 				function() { return module; };
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
 /******/ 		};
 /******/ 	}();
 /******/ 	

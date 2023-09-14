@@ -4,12 +4,12 @@ get_header();
 
 
 while (have_posts()) {
-    the_post(); 
+    the_post();
     pageBanner(array(
         'title' => get_the_title(),
         'photo' => get_theme_file_uri('/images/library-hero.jpg')
     ));
-    ?>
+?>
 
 
     <div class="container container--narrow page-section">
@@ -52,14 +52,14 @@ while (have_posts()) {
                 <li class="professor-card__list-item">
                     <a href="<?php the_permalink(); ?>" class="professor-card">
 
-                    <img class="professor-card__image" src="<?php the_post_thumbnail_url('professorLandscape'); ?>">
-                    <span class="professor-card__name"><?php the_title(); ?></span>
+                        <img class="professor-card__image" src="<?php the_post_thumbnail_url('professorLandscape'); ?>">
+                        <span class="professor-card__name"><?php the_title(); ?></span>
 
                     </a>
                 </li>
 
         <?php }
-        echo "</ul>";
+            echo "</ul>";
         }
         wp_reset_postdata();
         ?>
@@ -97,11 +97,30 @@ while (have_posts()) {
         while ($homepageEvents->have_posts()) {
             $homepageEvents->the_post();
             get_template_part('template-parts/content-event');
-        
         }
     }
+
     wp_reset_postdata();
+
+    $relatedCampuses = get_field('related_campuses');
+
+    if ($relatedCampuses) {
+
+        echo "<hr class='section-break'>";
+        echo '<h2 class="headline headline--medium">' . get_the_title() . ' is available at these campuses </h2>';
+
+        echo '<ul class="min-list link-list">';
+
+        foreach ($relatedCampuses as $relatedCampus) {
+        ?>
+
+            <li><a href="<?php echo get_the_permalink($relatedCampus); ?>"> <?php echo get_the_title($relatedCampus); ?></a></li>
+    <?php }
+
+        echo '</ul>';
+    }
     ?>
+
 
 
 
