@@ -24,6 +24,8 @@ function universitySearchResults($data)
                 'id' => get_the_ID(),
                 'title' => get_the_title(),
                 'link' => get_the_permalink(),
+                'type' => get_post_type(),
+                'author_name' => get_the_author(),
             ));
         }
 
@@ -33,6 +35,7 @@ function universitySearchResults($data)
                 'id' => get_the_ID(),
                 'title' => get_the_title(),
                 'link' => get_the_permalink(),
+                'image_link' => get_the_post_thumbnail_url(0, 'professorLandscape'),
             ));
         }
 
@@ -46,11 +49,21 @@ function universitySearchResults($data)
         }
 
         if (get_post_type() == "event") {
+            $eventDate = new DateTime(get_field('event_date'));
+            $description = null;
+            if (has_excerpt()) {
+                $description = get_the_excerpt();
+            } else {
+                $description = wp_trim_words(get_the_content(), 15);
+            }
 
             array_push($results['events'], array(
                 'id' => get_the_ID(),
                 'title' => get_the_title(),
                 'link' => get_the_permalink(),
+                'month' => $eventDate->format('M'),
+                'date' => $eventDate->format('d'),
+                'description' => $description
             ));
         }
 
@@ -62,9 +75,40 @@ function universitySearchResults($data)
                 'link' => get_the_permalink(),
             ));
         }
+    }
 
-        
+    if ($results['programs']) {
 
+        $progrmasMetaQuery = array('relation' => 'OR');
+
+        foreach ($results['programs'] as $item) {
+            array_push($progrmasMetaQuery, array(
+                'key' => 'related_programs',
+                'compare' => 'LIKE',
+                'value' => '"' . $item['id'] . '"',
+            ));
+        }
+
+        $programRelQuery = new WP_Query(array(
+            'post_type' => 'professor',
+            'meta_query' => $progrmasMetaQuery,
+        ));
+
+        while ($programRelQuery->have_posts()) {
+            $programRelQuery->the_post();
+
+            if (get_post_type() == "professor") {
+
+                array_push($results['professors'], array(
+                    'id' => get_the_ID(),
+                    'title' => get_the_title(),
+                    'link' => get_the_permalink(),
+                    'image_link' => get_the_post_thumbnail_url(0, 'professorLandscape'),
+                ));
+            }
+        }
+
+        $results['professors'] = array_values(array_unique($results['professors'], SORT_REGULAR)); // To Remove the duplicate values from Professors Array
     }
 
     return $results;
