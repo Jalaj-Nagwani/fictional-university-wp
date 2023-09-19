@@ -41,6 +41,17 @@ function universitySearchResults($data)
 
         if (get_post_type() == "program") {
 
+            $relatedCampuses = get_field('related_campuses');
+
+            if ($relatedCampuses){
+                foreach($relatedCampuses as $campus){
+                    array_push($results['campuses'], array(
+                        'title' => get_the_title($campus),
+                        'link' => get_the_permalink($campus),
+                    ));
+                }
+            }
+
             array_push($results['programs'], array(
                 'id' => get_the_ID(),
                 'title' => get_the_title(),
@@ -90,12 +101,12 @@ function universitySearchResults($data)
         }
 
         $programRelQuery = new WP_Query(array(
-            'post_type' => 'professor',
+            'post_type' => array('professor', 'event'),
             'meta_query' => $progrmasMetaQuery,
         ));
 
         while ($programRelQuery->have_posts()) {
-            $programRelQuery->the_post();
+            $programRelQuery->the_post();  // The reason behind we use the same field (related_programs) in both events and programs
 
             if (get_post_type() == "professor") {
 
@@ -106,9 +117,30 @@ function universitySearchResults($data)
                     'image_link' => get_the_post_thumbnail_url(0, 'professorLandscape'),
                 ));
             }
+
+
+            if (get_post_type() == "event") {
+                $eventDate = new DateTime(get_field('event_date'));
+                $description = null;
+                if (has_excerpt()) {
+                    $description = get_the_excerpt();
+                } else {
+                    $description = wp_trim_words(get_the_content(), 15);
+                }
+    
+                array_push($results['events'], array(
+                    'id' => get_the_ID(),
+                    'title' => get_the_title(),
+                    'link' => get_the_permalink(),
+                    'month' => $eventDate->format('M'),
+                    'date' => $eventDate->format('d'),
+                    'description' => $description
+                ));
+            }
         }
 
         $results['professors'] = array_values(array_unique($results['professors'], SORT_REGULAR)); // To Remove the duplicate values from Professors Array
+        $results['events'] = array_values(array_unique($results['events'], SORT_REGULAR));
     }
 
     return $results;

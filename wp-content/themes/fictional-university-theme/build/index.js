@@ -305,6 +305,7 @@ class Search {
     setTimeout(() => this.searchField.focus(), 301);
     this.isOverlayOpen = true;
     console.log("Open");
+    return false;
   }
   closeOverlay() {
     this.searchOverlay.removeClass("search-overlay--active");

@@ -20,12 +20,14 @@ function university_post_types(){
         ),
         'show_in_rest' => true,
         'menu_icon' => 'dashicons-calendar-alt',
+        'capability_type' => 'event',
+        'map_meta_cap' => true
     ));
 
     // Program Post Type
 
     register_post_type('program', array(
-        'supports' => array('title', 'editor', 'excerpt', 'revisions', 'thumbnail'),
+        'supports' => array('title', 'excerpt', 'revisions', 'thumbnail'),
         'has_archive' => true,
         'rewrite' => array('slug' => 'programs'),
         'public' => true,  // Makes it visible to Viewers and Editors of the website 
@@ -61,6 +63,8 @@ function university_post_types(){
     // Campus Post Type
 
     register_post_type('campus', array(
+        'capability_type' => 'campus',
+        'map_meta_cap' => true,
         'supports' => array('title', 'editor', 'excerpt', 'revisions', 'thumbnail'),
         'public' => true,
         'has_archive' => true,
