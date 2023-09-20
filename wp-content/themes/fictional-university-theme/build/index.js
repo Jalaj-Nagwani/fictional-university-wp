@@ -14,9 +14,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_HeroSlider__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/HeroSlider */ "./src/modules/HeroSlider.js");
 /* harmony import */ var _modules_GoogleMap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/GoogleMap */ "./src/modules/GoogleMap.js");
 /* harmony import */ var _modules_Search__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/Search */ "./src/modules/Search.js");
+/* harmony import */ var _modules_MyNotes__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/MyNotes */ "./src/modules/MyNotes.js");
 
 
 // Our modules / classes
+
 
 
 
@@ -27,6 +29,7 @@ const mobileMenu = new _modules_MobileMenu__WEBPACK_IMPORTED_MODULE_1__["default
 const heroSlider = new _modules_HeroSlider__WEBPACK_IMPORTED_MODULE_2__["default"]();
 const GoogleMap = new _modules_GoogleMap__WEBPACK_IMPORTED_MODULE_3__["default"]();
 const search = new _modules_Search__WEBPACK_IMPORTED_MODULE_4__["default"]();
+const mynotes = new _modules_MyNotes__WEBPACK_IMPORTED_MODULE_5__["default"]();
 
 /***/ }),
 
@@ -171,6 +174,68 @@ class MobileMenu {
   }
 }
 /* harmony default export */ __webpack_exports__["default"] = (MobileMenu);
+
+/***/ }),
+
+/***/ "./src/modules/MyNotes.js":
+/*!********************************!*\
+  !*** ./src/modules/MyNotes.js ***!
+  \********************************/
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "jquery");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+
+class MyNotes {
+  constructor() {
+    this.deletebtn = jquery__WEBPACK_IMPORTED_MODULE_0___default()(".delete-note");
+    this.editbtn = jquery__WEBPACK_IMPORTED_MODULE_0___default()(".edit-note");
+    this.events();
+  }
+  events() {
+    this.deletebtn.on("click", this.deleteNote);
+    this.editbtn.on("click", this.editNote);
+  }
+  deleteNote(e) {
+    var thisNote = jquery__WEBPACK_IMPORTED_MODULE_0___default()(e.target).parents("li");
+    jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
+      beforeSend: xhr => {
+        xhr.setRequestHeader('X-WP-NONCE', universityData.nonce);
+      },
+      url: universityData.root_url + "/wp-json/wp/v2/note/" + thisNote.data('id'),
+      type: 'DELETE',
+      success: response => {
+        thisNote.slideUp();
+        console.log("Congrats");
+        console.log(response);
+      },
+      error: error => {
+        console.log(error);
+      }
+    });
+  }
+  editNote(e) {
+    var thisNote = jquery__WEBPACK_IMPORTED_MODULE_0___default()(e.target).parents("li");
+    thisNote.find(".note-title-field, .note-body-field").removeAttr('readonly').addClass('note-active-field');
+    thisNote.find(".update-note").addClass("update-note--visible");
+    jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
+      beforeSend: xhr => {
+        xhr.setRequestHeader('X-WP-NONCE', universityData.nonce);
+      },
+      url: universityData.root_url + "/wp-json/wp/v2/note/" + thisNote.data('id'),
+      type: 'GET',
+      success: response => {
+        console.log("Congrats");
+        console.log(response);
+      },
+      error: error => {
+        console.log(error);
+      }
+    });
+  }
+}
+/* harmony default export */ __webpack_exports__["default"] = (MyNotes);
 
 /***/ }),
 
