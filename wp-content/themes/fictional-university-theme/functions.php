@@ -2,9 +2,10 @@
 
 require get_theme_file_path('/inc/search-route.php');
 
-function universityCustomRest(){
+function universityCustomRest()
+{
     register_rest_field('post', 'author_name', array(
-        'get_callback' => function (){
+        'get_callback' => function () {
             return get_the_author();
         }
     ));
@@ -20,15 +21,14 @@ function pageBanner($args = NULL)
         $args['title'] = get_the_title();
     }
 
-    if (!isset($args['subtitle'])){
+    if (!isset($args['subtitle'])) {
         $args['subtitle'] = get_field('page_banner_subtitle');
     }
 
-    if (!isset($args['photo'])){
-        if (get_field('page_banner_background_image') AND !is_archive() AND !is_home()){
+    if (!isset($args['photo'])) {
+        if (get_field('page_banner_background_image') and !is_archive() and !is_home()) {
             $args['photo'] = get_field('page_banner_background_image')['sizes']['professorLandscape'];
-        }
-        else{
+        } else {
             $args['photo'] = get_theme_file_uri('/images/ocean.jpg');
         }
     }
@@ -85,11 +85,11 @@ add_action('after_setup_theme', 'university_features');
 function university_adjust_queries($query)
 {
 
-    
+
     if (!is_admin() and is_post_type_archive('campus') and is_main_query()) {
         $query->set('posts_per_page', '-1');
     }
-    
+
     if (!is_admin() and is_post_type_archive('program') and is_main_query()) {
         $query->set('orderby', 'title');
         $query->set('order', 'ASC');
@@ -114,7 +114,8 @@ function university_adjust_queries($query)
 
 add_action('pre_get_posts', 'university_adjust_queries');
 
-function universityMapKey($api){
+function universityMapKey($api)
+{
     $api['KEY'] = '<GOOGLE-MAPS-API-KEY>';
     return $api;
 }
@@ -124,11 +125,12 @@ add_filter('acf/fields/google_map/api', 'universityMapKey');
 
 //  Redirect Subscriber account out of admin and onto homepage
 
-function redirect_subs_to_frontend(){
+function redirect_subs_to_frontend()
+{
 
     $current_user = wp_get_current_user();
 
-    if (count($current_user->roles) == 1 AND $current_user->roles[0] == 'subscriber'){
+    if (count($current_user->roles) == 1 and $current_user->roles[0] == 'subscriber') {
         wp_redirect(site_url('/'));
         exit;
     }
@@ -138,11 +140,12 @@ add_action('admin_init', 'redirect_subs_to_frontend');
 
 //  Hide admin bar for subscribers
 
-function no_admin_bar_for_subs(){
+function no_admin_bar_for_subs()
+{
 
     $current_user = wp_get_current_user();
 
-    if (count($current_user->roles) == 1 AND $current_user->roles[0] == 'subscriber'){
+    if (count($current_user->roles) == 1 and $current_user->roles[0] == 'subscriber') {
         show_admin_bar(false);
     }
 }
@@ -151,13 +154,15 @@ add_action('wp_loaded', 'no_admin_bar_for_subs');
 
 // Customize Login Screen
 
-function ourHeaderUrl(){
+function ourHeaderUrl()
+{
     return esc_url(site_url('/'));
 }
 
 add_filter('login_headerurl', 'ourHeaderUrl');
 
-function our_login_css(){
+function our_login_css()
+{
     wp_enqueue_style('google-fonts', 'https://fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i|Roboto:100,300,400,400i,700,700i');
     wp_enqueue_style('font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
     wp_enqueue_style('university_main_styles', get_theme_file_uri('/build/style-index.css'));
@@ -166,8 +171,24 @@ function our_login_css(){
 
 add_action('login_enqueue_scripts', 'our_login_css');
 
-function ourLoginTitle(){
+function ourLoginTitle()
+{
     return get_bloginfo('name');
 }
 
 add_filter('login_headertitle', 'ourLoginTitle');
+
+
+// Force Note Posts to be private
+
+
+function makeNotePrivate($data)
+{
+
+    if ($data['post_type'] == 'note' AND $data['post_status'] != 'trash') {
+        $data['post_status'] = "private";
+        return $data;
+    }
+}
+
+add_filter('wp_insert_post_data', 'makeNotePrivate');

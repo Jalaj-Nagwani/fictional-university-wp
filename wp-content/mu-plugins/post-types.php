@@ -86,6 +86,8 @@ function university_post_types(){
     register_post_type('note', array(
         'supports' => array('title', 'editor', 'revisions', 'thumbnail'),
         'public' => false,
+        'capability_type' => 'note',
+        'map_meta_cap' => true,
         'show_ui' => true, // Show in Admin
         'labels' => array(
             'name' => 'Notes',
