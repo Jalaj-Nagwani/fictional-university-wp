@@ -24,6 +24,7 @@ while (have_posts()) {
             <input placeholder="Title" class="new-note-title">
             <textarea placeholder="Your note here..." class="new-note-body"></textarea>
             <span class="submit-note">Create Note</span>
+            <span class="note-limit-message">Note Limit reached: Delete an existing note to make room for a new one.</span>
         </div>
 
         <ul class="min-list link-list" id="my-notes">
@@ -42,7 +43,7 @@ while (have_posts()) {
                     <input readonly class="note-title-field" value="<?php echo str_replace('Private: ', '', esc_attr(get_the_title())); ?>">
                     <span class="edit-note"><i class="fa fa-pencil" aria-hidden="true"></i> Edit</span>
                     <span class="delete-note"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</span>
-                    <textarea readonly class="note-body-field"><?php echo esc_attr(wp_strip_all_tags(get_the_content())); ?></textarea>
+                    <textarea readonly class="note-body-field"><?php echo esc_textarea(wp_strip_all_tags(get_the_content())); ?></textarea>
                     <span class="update-note btn btn--blue btn--small"><i class="fa fa-arrow-right" aria-hidden="true"></i> Save</span>
                 </li>
 

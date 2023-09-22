@@ -48,6 +48,9 @@ class MyNotes {
             },
             error: (error) => {
                 console.log(error);
+                if (error.responseText == "You have reached the limit"){
+                    $(".note-limit-message").addClass("active");
+                }
             },
         });
     }
@@ -65,6 +68,10 @@ class MyNotes {
             success: (response) => {
                 thisNote.slideUp();
                 // console.log(response);
+                console.log(response.userNoteCount);
+                if (response.userNoteCount <= 5){
+                    $(".note-limit-message").removeClass("active");
+                }
             },
             error: (error) => {
                 console.log(error);

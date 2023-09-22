@@ -234,6 +234,9 @@ class MyNotes {
 
       error: error => {
         console.log(error);
+        if (error.responseText == "You have reached the limit") {
+          jquery__WEBPACK_IMPORTED_MODULE_0___default()(".note-limit-message").addClass("active");
+        }
       }
     });
   }
@@ -248,8 +251,11 @@ class MyNotes {
       success: response => {
         thisNote.slideUp();
         // console.log(response);
+        console.log(response.userNoteCount);
+        if (response.userNoteCount <= 5) {
+          jquery__WEBPACK_IMPORTED_MODULE_0___default()(".note-limit-message").removeClass("active");
+        }
       },
-
       error: error => {
         console.log(error);
       }

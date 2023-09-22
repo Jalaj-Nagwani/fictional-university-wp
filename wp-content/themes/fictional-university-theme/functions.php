@@ -9,6 +9,12 @@ function universityCustomRest()
             return get_the_author();
         }
     ));
+
+    register_rest_field('note', 'userNoteCount', array(
+        'get_callback' => function () {
+            return count_user_posts(get_current_user_id(), 'note');
+        }
+    ));
 }
 
 add_action('rest_api_init', 'universityCustomRest');
@@ -182,13 +188,29 @@ add_filter('login_headertitle', 'ourLoginTitle');
 // Force Note Posts to be private
 
 
-function makeNotePrivate($data)
+function makeNotePrivate($data, $postarr)
 {
 
+    // Prevent user from creating a note after a specific limit has reached
+    
+    if(count_user_posts(get_current_user_id(), 'note') >= 5 AND !$postarr['ID']){
+        die('You have reached the limit');  // It prevent anything even the below data to be executed
+    }
+    
+    //  Escape/Strip the html before saving data into the database
+
+    if ($data['post_type'] == 'note'){
+        $data['post_content'] = sanitize_textarea_field($data['post_content']);
+        $data['post_title'] = sanitize_text_field($data['post_title']);
+    }
+    
+    // Make the Note post_type private instead of publish before saving it in the database
+    
     if ($data['post_type'] == 'note' AND $data['post_status'] != 'trash') {
         $data['post_status'] = "private";
-        return $data;
     }
+
+    return $data;
 }
 
-add_filter('wp_insert_post_data', 'makeNotePrivate');
+add_filter('wp_insert_post_data', 'makeNotePrivate', 10, 2);  // 10 for the priority which is by default and 2 for working with 2 arguments
