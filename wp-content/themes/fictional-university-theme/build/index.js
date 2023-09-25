@@ -15,9 +15,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_GoogleMap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/GoogleMap */ "./src/modules/GoogleMap.js");
 /* harmony import */ var _modules_Search__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/Search */ "./src/modules/Search.js");
 /* harmony import */ var _modules_MyNotes__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/MyNotes */ "./src/modules/MyNotes.js");
+/* harmony import */ var _modules_Like__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/Like */ "./src/modules/Like.js");
 
 
 // Our modules / classes
+
 
 
 
@@ -30,6 +32,7 @@ const heroSlider = new _modules_HeroSlider__WEBPACK_IMPORTED_MODULE_2__["default
 const GoogleMap = new _modules_GoogleMap__WEBPACK_IMPORTED_MODULE_3__["default"]();
 const search = new _modules_Search__WEBPACK_IMPORTED_MODULE_4__["default"]();
 const mynotes = new _modules_MyNotes__WEBPACK_IMPORTED_MODULE_5__["default"]();
+const like = new _modules_Like__WEBPACK_IMPORTED_MODULE_6__["default"]();
 
 /***/ }),
 
@@ -148,6 +151,85 @@ class HeroSlider {
   }
 }
 /* harmony default export */ __webpack_exports__["default"] = (HeroSlider);
+
+/***/ }),
+
+/***/ "./src/modules/Like.js":
+/*!*****************************!*\
+  !*** ./src/modules/Like.js ***!
+  \*****************************/
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "jquery");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+
+class Like {
+  constructor() {
+    this.events();
+  }
+  events() {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()(".like-box").on("click", this.ourClickDispatcher.bind(this));
+  }
+  ourClickDispatcher(e) {
+    var currentLikeBox = jquery__WEBPACK_IMPORTED_MODULE_0___default()(e.target).closest(".like-box");
+    if (currentLikeBox.attr("data-exists") == "yes") {
+      // Tip :- If we want to pull in the fresh updated value we must use x.attr instead of x.data
+      this.deleteLike(currentLikeBox);
+    } else {
+      this.createLike(currentLikeBox);
+    }
+  }
+  createLike(currentLikeBox) {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
+      url: universityData.root_url + '/wp-json/university/v1/manage-like',
+      beforeSend: xhr => {
+        xhr.setRequestHeader('X-WP-NONCE', universityData.nonce);
+      },
+      type: 'POST',
+      data: {
+        'professorID': currentLikeBox.data("professor")
+      },
+      success: response => {
+        currentLikeBox.attr('data-exists', 'yes');
+        var likeCount = parseInt(currentLikeBox.find(".like-count").html(), 10); // To convert the html into a number we used the parseInt function
+        likeCount++; // Incrementing the Like Count by 1
+        currentLikeBox.find(".like-count").html(likeCount); // Updating the like-box
+        currentLikeBox.attr('data-like', response);
+        console.log(response);
+      },
+      error: error => {
+        console.log(error);
+      }
+    });
+  }
+  deleteLike(currentLikeBox) {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
+      url: universityData.root_url + '/wp-json/university/v1/manage-like',
+      type: 'DELETE',
+      beforeSend: xhr => {
+        xhr.setRequestHeader('X-WP-NONCE', universityData.nonce);
+      },
+      data: {
+        'like': currentLikeBox.data("like")
+      },
+      success: response => {
+        // alert("Success of deleteLike");
+        currentLikeBox.attr('data-exists', 'no');
+        var likeCount = parseInt(currentLikeBox.find(".like-count").html(), 10); // To convert the html into a number we used the parseInt function
+        likeCount--; // Incrementing the Like Count by 1
+        currentLikeBox.find(".like-count").html(likeCount); // Updating the like-box
+        currentLikeBox.attr('data-like', '');
+        console.log(response);
+      },
+      error: error => {
+        // alert("Error of deleteLike");
+        console.log(error);
+      }
+    });
+  }
+}
+/* harmony default export */ __webpack_exports__["default"] = (Like);
 
 /***/ }),
 

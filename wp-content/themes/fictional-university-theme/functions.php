@@ -1,6 +1,7 @@
 <?php
 
 require get_theme_file_path('/inc/search-route.php');
+require get_theme_file_path('/inc/like-route.php');
 
 function universityCustomRest()
 {
@@ -192,21 +193,22 @@ function makeNotePrivate($data, $postarr)
 {
 
     // Prevent user from creating a note after a specific limit has reached
-    
-    if(count_user_posts(get_current_user_id(), 'note') >= 5 AND !$postarr['ID']){
-        die('You have reached the limit');  // It prevent anything even the below data to be executed
-    }
-    
-    //  Escape/Strip the html before saving data into the database
 
-    if ($data['post_type'] == 'note'){
+    if ($data['post_type'] == 'note') {
+
+        if (count_user_posts(get_current_user_id(), 'note') >= 5 and !$postarr['ID']) {
+            die('You have reached the limit');  // It prevent anything even the below data to be executed
+        }
+
+        //  Escape/Strip the html before saving data into the database
+
         $data['post_content'] = sanitize_textarea_field($data['post_content']);
         $data['post_title'] = sanitize_text_field($data['post_title']);
     }
-    
+
     // Make the Note post_type private instead of publish before saving it in the database
-    
-    if ($data['post_type'] == 'note' AND $data['post_status'] != 'trash') {
+
+    if ($data['post_type'] == 'note' and $data['post_status'] != 'trash') {
         $data['post_status'] = "private";
     }
 
@@ -214,3 +216,13 @@ function makeNotePrivate($data, $postarr)
 }
 
 add_filter('wp_insert_post_data', 'makeNotePrivate', 10, 2);  // 10 for the priority which is by default and 2 for working with 2 arguments
+
+
+// Exclude the node_modules folder from All in One WP Migrations
+
+add_filter('ai1wm_exclude_content_from_export', 'ignoreCertainFiles');
+
+function ignoreCertainFiles(){
+    $exclude_filters[] = "themes/fictional-university-theme/node_modules";
+    return $exclude_filters;
+}
