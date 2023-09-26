@@ -54,6 +54,23 @@ function pageBanner($args = NULL)
 <?php }
 
 
+function slideshow()
+{
+?>
+
+    <div class="hero-slider__slide" style="background-image: url(<?php echo get_field('slide_image'); ?>)">
+        <div class="hero-slider__interior container">
+            <div class="hero-slider__overlay">
+                <h2 class="headline headline--medium t-center"><?php echo get_field('slide_heading'); ?></h2>
+                <p class="t-center"><?php echo get_field('slide_subheading'); ?></p>
+                <p class="t-center no-margin"><a href="<?php echo get_field('button_link'); ?>" class="btn btn--blue"><?php echo get_field('button_text'); ?></a></p>
+            </div>
+        </div>
+    </div>
+
+<?php }
+
+
 function university_files()
 {
     wp_enqueue_script('googleMap', '//maps.googleapis.com/maps/api/js?key="<GOOGLE-API-KEY>"', array('jquery'), '1.0', true);
@@ -222,7 +239,8 @@ add_filter('wp_insert_post_data', 'makeNotePrivate', 10, 2);  // 10 for the prio
 
 add_filter('ai1wm_exclude_content_from_export', 'ignoreCertainFiles');
 
-function ignoreCertainFiles(){
+function ignoreCertainFiles()
+{
     $exclude_filters[] = "themes/fictional-university-theme/node_modules";
     return $exclude_filters;
 }

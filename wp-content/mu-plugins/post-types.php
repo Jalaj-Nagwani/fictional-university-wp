@@ -117,6 +117,22 @@ function university_post_types(){
         'menu_icon' => 'dashicons-heart',
     ));
 
+    // Slideshow Post Type
+
+    register_post_type('slideshow', array(
+        'supports' => array('title'),
+        'public' => false,
+        'show_ui' => true, // Show in Admin
+        'labels' => array(
+            'name' => 'Slides',
+            'add_new_item' => 'Add New Slide',
+            'edit_item' => 'Edit Slide',
+            'all_items' => 'All Slides',
+            'singular_name' => 'Slide'
+        ),
+        'menu_icon' => 'dashicons-images-alt',
+    ));
+
 }
 
 add_action('init', 'university_post_types');
