@@ -63,7 +63,7 @@ function slideshow()
             <div class="hero-slider__overlay">
                 <h2 class="headline headline--medium t-center"><?php echo get_field('slide_heading'); ?></h2>
                 <p class="t-center"><?php echo get_field('slide_subheading'); ?></p>
-                <p class="t-center no-margin"><a href="<?php echo get_field('button_link'); ?>" class="btn btn--blue"><?php echo get_field('button_text'); ?></a></p>
+                <p class="t-center no-margin"><a href="<?php if (get_field('button_link') != null) {echo get_field('button_link');} else{ echo "#"; }?>" class="btn btn--blue"><?php echo get_field('button_text'); ?></a></p>
             </div>
         </div>
     </div>

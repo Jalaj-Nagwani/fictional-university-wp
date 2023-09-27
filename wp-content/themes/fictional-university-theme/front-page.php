@@ -93,7 +93,9 @@ get_header();
 
             $slides = new WP_Query(array(
                 'post_type' => 'slideshow',
-                'post_per_page' => -1
+                'post_per_page' => -1,
+                'sortby' => 'title',
+                'order' => 'ASC'
             ));
 
             while ($slides->have_posts()) {
